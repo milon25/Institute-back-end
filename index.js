@@ -89,9 +89,9 @@ const User = require('./model/userModel');
 // const Student = require('.model/studentModel')
 const Student = require('./model/studentModel');
 const Teacher = require('./model/teacherModel');
-const multer  = require('multer');
+const multer = require('multer');
 const Book = require('./model/bookModel');
-
+const Leave = require('./model/leaveModel');
 
 
 
@@ -120,7 +120,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + '-' + file.originalname )
+    cb(null, uniqueSuffix + '-' + file.originalname)
 
     console.log(file)
   }
@@ -166,7 +166,7 @@ app.post('/registration', async (req, res) => {
       return res.status(400).send('⚠️ All fields are required');
     }
 
-   
+
     const isUserExists = await User.findOne({ email });
     if (isUserExists) {
       return res.status(400).send(`⚠️ ${email} already exists`);
@@ -246,7 +246,7 @@ app.post('/createstudent', async (req, res) => {
 
 
 // app.post('/createstudent', async (req, res) => {
- 
+
 
 
 //   let student = new Student({
@@ -273,7 +273,7 @@ app.get('/allstudent', async (req, res) => {
 app.get('/student/:id', async (req, res) => {
 
   console.log(req.params.id)
-  let data = await Student.find({_id: req.params.id})
+  let data = await Student.find({ _id: req.params.id })
   res.send(data)
 
 
@@ -355,7 +355,7 @@ app.post('/createteacher', async (req, res) => {
 
 
 // app.post('/createstudent', async (req, res) => {
- 
+
 
 
 //   let student = new Student({
@@ -382,7 +382,7 @@ app.get('/allteacher', async (req, res) => {
 app.get('/teacher/:id', async (req, res) => {
 
   console.log(req.params.id)
-  let data = await Teacher.find({_id: req.params.id})
+  let data = await Teacher.find({ _id: req.params.id })
   res.send(data)
 
 
@@ -495,7 +495,7 @@ app.get('/allbook', async (req, res) => {
 app.get('/book/:id', async (req, res) => {
 
   console.log(req.params.id)
-  let data = await Book.find({_id: req.params.id})
+  let data = await Book.find({ _id: req.params.id })
   res.send(data)
 
 
@@ -513,12 +513,76 @@ app.post('/deletebook', async (req, res) => {
   }
 });
 
-
-
-
-
-
 // PDF backend end here
+
+
+
+
+
+
+
+ 
+// app.post("/leave", async (req, res) => {
+//   try {
+//     // Check if this student already has a leave record
+//     let existingLeave = await Leave.findOne({ studentid: req.body.studentid });
+
+//     if (existingLeave) {
+//       // If exists, update total count by +1
+//       existingLeave.total = (existingLeave.total || 0) + 1;
+//       await existingLeave.save();
+//       return res.send("✅ Leave count updated successfully!");
+//     } else {
+//       // If not exists, create a new record
+//       const leave = new Leave({
+//         studentname: req.body.studentname,
+//         departmentname: req.body.departmentname,
+//         studentid: req.body.studentid,
+//         total: 1 // প্রথমবার leave নিচ্ছে, তাই 1
+//       });
+
+//       await leave.save();
+//       return res.send("✅ Leave Created Successfully (First Time)");
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("❌ Error creating or updating leave");
+//   }
+// });
+
+
+
+
+app.post("/leave", async (req, res) => {
+  try {
+    const { studentname, departmentname, studentid } = req.body;
+    let existingLeave = await Leave.findOne({ studentid });
+
+    if (existingLeave) {
+      existingLeave.total += 1;
+      await existingLeave.save();
+      return res.send(existingLeave);
+    }
+
+    const newLeave = new Leave({ studentname, departmentname, studentid });
+    await newLeave.save();
+    res.send(newLeave);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Error creating leave");
+  }
+});
+
+// ✅ সব Leave দেখার জন্য
+app.get("/leave", async (req, res) => {
+  const leaves = await Leave.find();
+  res.send(leaves);
+});
+
+
+
+
 
 
 // ✅ Start Server
