@@ -519,39 +519,7 @@ app.post('/deletebook', async (req, res) => {
 
 
 
-
-
- 
-// app.post("/leave", async (req, res) => {
-//   try {
-//     // Check if this student already has a leave record
-//     let existingLeave = await Leave.findOne({ studentid: req.body.studentid });
-
-//     if (existingLeave) {
-//       // If exists, update total count by +1
-//       existingLeave.total = (existingLeave.total || 0) + 1;
-//       await existingLeave.save();
-//       return res.send("✅ Leave count updated successfully!");
-//     } else {
-//       // If not exists, create a new record
-//       const leave = new Leave({
-//         studentname: req.body.studentname,
-//         departmentname: req.body.departmentname,
-//         studentid: req.body.studentid,
-//         total: 1 // প্রথমবার leave নিচ্ছে, তাই 1
-//       });
-
-//       await leave.save();
-//       return res.send("✅ Leave Created Successfully (First Time)");
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("❌ Error creating or updating leave");
-//   }
-// });
-
-
-
+// Leave backend start here
 
 app.post("/leave", async (req, res) => {
   try {
@@ -567,22 +535,49 @@ app.post("/leave", async (req, res) => {
     const newLeave = new Leave({ studentname, departmentname, studentid });
     await newLeave.save();
     res.send(newLeave);
-
   } catch (err) {
     console.error(err);
     res.status(500).send("❌ Error creating leave");
   }
 });
 
-// ✅ সব Leave দেখার জন্য
+// ✅ READ all Leave
 app.get("/leave", async (req, res) => {
   const leaves = await Leave.find();
   res.send(leaves);
 });
 
+// ✅ UPDATE Leave (Render-safe POST fallback)
+app.post("/updateleave", async (req, res) => {
+  try {
+    const { id, studentname, departmentname, studentid } = req.body;
+    const updatedLeave = await Leave.findByIdAndUpdate(
+      id,
+      { studentname, departmentname, studentid },
+      { new: true }
+    );
+    res.send(updatedLeave);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Error updating leave");
+  }
+});
+
+// ✅ DELETE Leave (Render-safe POST fallback)
+app.post("/deleteleave", async (req, res) => {
+  try {
+    const { id } = req.body;
+    const deletedLeave = await Leave.findByIdAndDelete(id);
+    res.send({ message: "🗑️ Leave deleted successfully", deletedLeave });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("❌ Error deleting leave");
+  }
+});
 
 
 
+// Leave backend end here
 
 
 // ✅ Start Server
