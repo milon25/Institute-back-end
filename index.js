@@ -86,12 +86,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./model/userModel');
-// const Student = require('.model/studentModel')
 const Student = require('./model/studentModel');
 const Teacher = require('./model/teacherModel');
 const multer = require('multer');
 const Book = require('./model/bookModel');
 const Leave = require('./model/leaveModel');
+const Result = require('./model/resultModel');
 
 
 
@@ -578,6 +578,73 @@ app.post("/deleteleave", async (req, res) => {
 
 
 // Leave backend end here
+
+
+
+
+
+
+
+// Result backend start here
+
+
+
+
+
+app.post("/result", async (req, res) => {
+  
+  // console.log(req.body.studentid)
+  // console.log(req.body.departmentname)
+  // console.log(req.body.result)
+
+ 
+
+  let result = new Result ({
+
+    studentid: req.body.studentid,
+    departmentname: req.body.departmentname,
+    result: req.body.result, 
+    cgpa: gpaCalculation(req.body.result)
+
+  }).save()
+
+  res.send("Result Publish")
+});
+
+
+
+function gpaCalculation(result){
+ let total = 0
+  result.map((item)=>{
+    console.log(item.result)
+    if(item >= 80){
+      total += 4
+    }else if (item.result >= 75){
+      total += 3.75
+    }else if(item.result >= 70){
+      total += 3.50
+    }else if (item.result >= 60){
+      total += 3.25
+    }else if ( item.result >= 55){
+      total += 3.00
+    }else if ( item.result <= 50){
+      total += 0
+    }
+
+  })
+
+  let cgpa = total / result.length
+   return cgpa.toFixed(2)
+}
+
+
+
+app.get('/result', async (req, res) => {
+  let data = await Result.find({}).populate("studentid")
+  res.send(data)
+});
+
+// Result backend end here
 
 
 // ✅ Start Server
