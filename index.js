@@ -591,58 +591,144 @@ app.post("/deleteleave", async (req, res) => {
 
 
 
-app.post("/result", async (req, res) => {
+// app.post("/result", async (req, res) => {
   
-  // console.log(req.body.studentid)
-  // console.log(req.body.departmentname)
-  // console.log(req.body.result)
+//   // console.log(req.body.studentid)
+//   // console.log(req.body.departmentname)
+//   // console.log(req.body.result)
 
  
 
-  let result = new Result ({
+//   let result = new Result ({
 
-    studentid: req.body.studentid,
-    departmentname: req.body.departmentname,
-    result: req.body.result, 
-    cgpa: gpaCalculation(req.body.result)
+//     studentid: req.body.studentid,
+//     departmentname: req.body.departmentname,
+//     result: req.body.result, 
+//     cgpa: gpaCalculation(req.body.result)
 
-  }).save()
+//   }).save()
 
-  res.send("Result Publish")
-});
+//   res.send("Result Publish")
+// });
 
 
 
-function gpaCalculation(result){
- let total = 0
-  result.map((item)=>{
-    console.log(item.result)
-    if(item >= 80){
-      total += 4
-    }else if (item.result >= 75){
-      total += 3.75
-    }else if(item.result >= 70){
-      total += 3.50
-    }else if (item.result >= 60){
-      total += 3.25
-    }else if ( item.result >= 55){
-      total += 3.00
-    }else if ( item.result <= 50){
-      total += 0
+// function gpaCalculation(result){
+//  let total = 0
+//   result.map((item)=>{
+//     console.log(item.result)
+//     if(item >= 80){
+//       total += 4
+//     }else if (item.result >= 75){
+//       total += 3.75
+//     }else if(item.result >= 70){
+//       total += 3.50
+//     }else if (item.result >= 60){
+//       total += 3.25
+//     }else if ( item.result >= 55){
+//       total += 3.00
+//     }else if ( item.result <= 50){
+//       total += 0
+//     }
+
+//   })
+
+//   let cgpa = total / result.length
+//    return cgpa.toFixed(2)
+// }
+
+
+
+// app.get('/result', async (req, res) => {
+//   let data = await Result.find({}).populate("studentid")
+//   res.send(data)
+// });
+
+
+
+
+app.post("/result", async (req, res) => {
+  try {
+    const { studentid, departmentname, result } = req.body;
+
+    if (!studentid || !departmentname || !Array.isArray(result)) {
+      return res.status(400).send({ error: "Missing fields or invalid result format" });
     }
 
-  })
+    // obossoi number dite hobe
+    const normalized = result.map(r => ({
+      subject: r.subject || "",
+      result: Number(r.result) || 0
+    }));
 
-  let cgpa = total / result.length
-   return cgpa.toFixed(2)
+    const cgpa = gpaCalculation(normalized);
+
+    const saved = await new Result({
+      studentid,
+      departmentname,
+      result: normalized,
+      cgpa
+    }).save();
+
+    res.status(201).send({ message: "Result Published", saved });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: "Server error" });
+  }
+});
+
+// DELETE route  r rsult remove
+app.delete("/result/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const removed = await Result.findByIdAndDelete(id);
+    if (!removed) return res.status(404).send({ error: "Result not found" });
+    res.send({ message: "Result deleted", removed });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: "Server error" });
+  }
+});
+
+function gpaCalculation(resultArray){
+  // resultArray should be [{subject, result:number}, ...]
+  if (!Array.isArray(resultArray) || resultArray.length === 0) return 0.00;
+
+  const getGradePoint = (score) => {
+    const s = Number(score);
+    if (isNaN(s)) return 0.0;
+    if (s >= 80) return 4.00;
+    if (s >= 75) return 3.75;
+    if (s >= 70) return 3.50;
+    if (s >= 65) return 3.25;
+    if (s >= 60) return 3.00;
+    if (s >= 55) return 2.75;
+    if (s >= 50) return 2.50;
+    if (s >= 45) return 2.25;
+    if (s >= 40) return 2.00;
+    return 0.00;
+  };
+
+  let totalPoints = 0;
+  let subjectCount = 0;
+
+  resultArray.forEach(item => {
+    const score = item.result !== undefined ? Number(item.result) : 0;
+    const gp = getGradePoint(score);
+    totalPoints += gp;
+    subjectCount += 1;
+  });
+
+  if (subjectCount === 0) return 0.00;
+  const cgpa = totalPoints / subjectCount;
+  // return numeric with 2 decimals
+  return Number(cgpa.toFixed(2));
 }
 
 
 
-app.get('/result', async (req, res) => {
-  let data = await Result.find({}).populate("studentid")
-  res.send(data)
-});
+
+
 
 // Result backend end here
 
