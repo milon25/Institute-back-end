@@ -97,6 +97,7 @@ const Result = require('./model/resultModel');
 
 
 
+
 const app = express();
 
 // ✅ Middleware
@@ -130,26 +131,6 @@ if (!fs.existsSync('./uploads')) fs.mkdirSync('./uploads');
 
 
 const upload = multer({ storage: storage });
-
-
-
-// app.post('/uploadbook', upload.single('avatar'), function (req, res, next) {
-
-// const book = new bookModel({
-//     name: req.body.name,
-//     department: req.body.department,
-//     writer: req.body.writer,
-//     serial: req.body.serial,
-//     url: req.file.path
-// }).save();
-
-//  res.send("book uploaded");
-//   // req.file is the `avatar` file
-//   // req.body will hold the text fields, if there were any
-
-
-//  });
-
 
 
 
@@ -639,13 +620,10 @@ app.post("/deleteleave", async (req, res) => {
 
 
 
-// app.get('/result', async (req, res) => {
-//   let data = await Result.find({}).populate("studentid")
-//   res.send(data)
-// });
-
-
-
+app.get('/result', async (req, res) => {
+  let data = await Result.find({}).populate("studentid")
+  res.send(data)
+});
 
 app.post("/result", async (req, res) => {
   try {
@@ -724,9 +702,6 @@ function gpaCalculation(resultArray){
   // return numeric with 2 decimals
   return Number(cgpa.toFixed(2));
 }
-
-
-
 
 
 
