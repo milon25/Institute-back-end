@@ -1,87 +1,3 @@
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const User = require("./model/userModel");
-// var cors = require('cors');
-// // const nodemailer = require("nodemailer");
-// const app = express();
-// app.use(cors());
-
-
-// // const transporter = nodemailer.createTransport({
-// //   service: "gmail",
-// //   secure: false, 
-// //   auth: {
-//     // user: "maddison53@ethereal.email",
-// //     pass: "jn7jnAPss4f63QBp6D",
-// //   },
-// // });
-
-
-// app.use(express.json());
-// mongoose.connect('mongodb+srv://SRM:894h4q_b$WrWCW.@cluster0.kbjcadu.mongodb.net/srm?retryWrites=true&w=majority&appName=Cluster0')
-//   .then(() => console.log('Connected!'));
-
-// app.post('/registration',async (req, res) => {
-//     console.log(req.body)
-
-
-//     let isUserExists = await User.findOne({email: req.body.email})
-
-//     if(isUserExists){
-//         return res.send(`${req.body.email} alrady exists`)
-
-//     }
-
-
-//     let user = new User({
-//         username : req.body.username,
-//         email : req.body.email,
-//         password : req.body.password
-//     }).save()
-
-//   res.send('Registration successfull');
-// });
-
-
-
-
-
-
-// app.post('/login',async (req, res) => {
-//     console.log(req.body)
-
-
-//     let isUserExists = await User.findOne({email: req.body.email})
-
-//     if(!isUserExists){
-//         return res.send(`${req.body.email} not found`)
-
-//     }
-
-
-//    if(isUserExists.password !== req.body.password){
-//     return res.send(`Invalid credential`)
-//    }
-
-//   res.send({
-//     username: isUserExists.username,
-//     email: isUserExists.email
-
-//   });
-
-// });
-
-
-// app.listen(5000, () => {
-//   console.log("✅ Server running on http://localhost:5000");
-// });
-
-
-
-
-
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -90,12 +6,9 @@ const Student = require('./model/studentModel');
 const Teacher = require('./model/teacherModel');
 const multer = require('multer');
 const Book = require('./model/bookModel');
+const Payment = require('./model/paymentModel');
 const Leave = require('./model/leaveModel');
 const Result = require('./model/resultModel');
-
-
-
-
 
 
 const app = express();
@@ -127,6 +40,7 @@ const storage = multer.diskStorage({
   }
 });
 const fs = require('fs');
+const { default: axios } = require('axios');
 if (!fs.existsSync('./uploads')) fs.mkdirSync('./uploads');
 
 
@@ -226,21 +140,6 @@ app.post('/createstudent', async (req, res) => {
 });
 
 
-// app.post('/createstudent', async (req, res) => {
-
-
-
-//   let student = new Student({
-//   studentname: req.body.studentname,
-//   departmentname: req.body.departmentname,
-//   studentid: req.body.studentid,
-//   phonenumber: req.body.phonenumber
-// });
-
-// await student.save();
-// res.send("✅ Student Created");
-// });
-
 
 
 app.get('/allstudent', async (req, res) => {
@@ -260,12 +159,6 @@ app.get('/student/:id', async (req, res) => {
 
 });
 
-// app.post('/delete', async (req, res) => {
-//   let data = await Student.findByIdAndDelete({_id: req.body.id})
-//   res.send("Deleted")
-
-
-// });
 
 
 app.post('/deletestudent', async (req, res) => {
@@ -334,21 +227,6 @@ app.post('/createteacher', async (req, res) => {
   }
 });
 
-
-// app.post('/createstudent', async (req, res) => {
-
-
-
-//   let student = new Student({
-//   studentname: req.body.studentname,
-//   departmentname: req.body.departmentname,
-//   studentid: req.body.studentid,
-//   phonenumber: req.body.phonenumber
-// });
-
-// await student.save();
-// res.send("✅ Student Created");
-// });
 
 
 
@@ -436,31 +314,6 @@ app.post('/uploadbook', upload.single('avatar'), async (req, res) => {
 
 
 
-
-
-// app.post('/createbook', async (req, res) => {
-//   try {
-//     const { name, department, writer, serial, file } = req.body;
-
-//     if (!name || !department || !writer || !serial || !file) {
-//       return res.status(400).send("⚠️ All fields are required");
-//     }
-
-//     const book = new Book({
-//       name,
-//       department,
-//       writer,
-//       serial
-//     });
-
-//     await book.save();
-
-//     res.status(201).send("✅ Book Created");
-//   } catch (error) {
-//     console.error("❌ Error creating book:", error);
-//     res.status(500).send("❌ Server error while creating book");
-//   }
-// });
 
 
 
@@ -572,54 +425,6 @@ app.post("/deleteleave", async (req, res) => {
 
 
 
-// app.post("/result", async (req, res) => {
-  
-//   // console.log(req.body.studentid)
-//   // console.log(req.body.departmentname)
-//   // console.log(req.body.result)
-
- 
-
-//   let result = new Result ({
-
-//     studentid: req.body.studentid,
-//     departmentname: req.body.departmentname,
-//     result: req.body.result, 
-//     cgpa: gpaCalculation(req.body.result)
-
-//   }).save()
-
-//   res.send("Result Publish")
-// });
-
-
-
-// function gpaCalculation(result){
-//  let total = 0
-//   result.map((item)=>{
-//     console.log(item.result)
-//     if(item >= 80){
-//       total += 4
-//     }else if (item.result >= 75){
-//       total += 3.75
-//     }else if(item.result >= 70){
-//       total += 3.50
-//     }else if (item.result >= 60){
-//       total += 3.25
-//     }else if ( item.result >= 55){
-//       total += 3.00
-//     }else if ( item.result <= 50){
-//       total += 0
-//     }
-
-//   })
-
-//   let cgpa = total / result.length
-//    return cgpa.toFixed(2)
-// }
-
-
-
 app.get('/result', async (req, res) => {
   let data = await Result.find({}).populate("studentid")
   res.send(data)
@@ -699,27 +504,155 @@ function gpaCalculation(resultArray){
 
   if (subjectCount === 0) return 0.00;
   const cgpa = totalPoints / subjectCount;
-  // return numeric with 2 decimals
+  // return numeric with 2
   return Number(cgpa.toFixed(2));
 }
-
-
 
 // Result backend end here
 
 
-// ✅ Start Server
-app.listen(5000, () => {
-  console.log('🚀 Server running on http://localhost:5000');
+
+// Paymnet backend start here
+
+
+
+
+app.post("/payment",async (req,res)=>{
+ console.log(new Date().getFullYear())
+ let month = new Date().getMonth() + 1
+ let date = new Date().getDate()
+ let year = new Date().getFullYear()
+ let amount = req.body.amount
+ let trans = new Date().getTime()
+
+
+ console.log(month)
+
+let paymentCount = await Payment.find({year: year})
+if (paymentCount.length != month){
+
+  let dueAmount = (month - paymentCount.length) * 100
+  amount = dueAmount
+
+}
+
+console.log(amount)
+
+
+
+
+ let paymentExist = await Payment.findOne({month: month})
+ if(paymentExist){
+  return res.send({message: "Payment is done for this month"})
+ }
+
+ try {
+    const payload = {
+      store_id: "aamarpaytest",
+      tran_id: trans,
+      success_url: "http://www.merchantdomain.com/successpage.html",
+      fail_url: "http://www.merchantdomain.com/failedpage.html",
+      cancel_url: "http://www.merchantdomain.com/cancelpage.html",
+      amount: amount,
+      currency: "BDT",
+      signature_key: "dbb74894e82415a2f7ff0ec3a97e4183",
+      desc: "Merchant Registration Payment",
+      cus_name: req.body.studentname,
+      cus_email: "payer@merchantcusomter.com",
+      cus_add1: "House B-158 Road 22",
+      cus_add2: "Mohakhali DOHS",
+      cus_city: "Dhaka",
+      cus_state: "Dhaka",
+      cus_postcode: "1206",
+      cus_country: "Bangladesh",
+      cus_phone: "+8801704",
+      type: "json",
+    };
+
+    // Aamarpay Sandbox URL (no hidden characters)
+    const url = "https://sandbox.aamarpay.com/jsonpost.php";
+
+    const response = await axios.post(url, payload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+
+
+     let payment = new Payment ({
+
+       date: date,
+          month: month,
+          year: year,
+          amount: amount,
+          studentname: req.body.studentname,
+          trans: trans
+
+     }).save()
+
+
+    res.send(response.data);
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      message: "Payment request failed",
+      error: error.message,
+    });
+  }
 });
 
 
 
 
+app.get("/duepayment",async(req,res)=>{
+   console.log(new Date().getFullYear())
+ let month = new Date().getMonth() + 1
+ 
+ let year = new Date().getFullYear()
+
+  let paymentCount = await Payment.find({year: year})
+if (paymentCount.length != month){
+
+  let dueAmount = (month - paymentCount.length) * 100
+  amount = dueAmount 
+
+}
+
+
+ let paymentExist = await Payment.findOne({month: month})
+
+ if(paymentExist){
+
+  
+ if(paymentExist.amount != amount){
+  res.send(amount - paymentExist.amount)
+
+  res.send(amount)
+ }else{
+  res.send(0)
+ }
+
+
+ }else{
+  res.send(amount
+  )
+ }
+
+
+})
 
 
 
 
+
+
+// Payment backend end here
+
+
+app.listen(5000, () => {
+  console.log('🚀 Server running on http://localhost:5000');
+});
 
 
 
