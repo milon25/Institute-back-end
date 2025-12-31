@@ -13,13 +13,13 @@ const Result = require('./model/resultModel');
 
 const app = express();
 
-// ✅ Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 
-// ✅ MongoDB Connection
+//  MongoDB Connection
 mongoose.connect(
   'mongodb+srv://SRM:894h4q_b$WrWCW.@cluster0.kbjcadu.mongodb.net/srm?retryWrites=true&w=majority&appName=Cluster0'
 )
@@ -52,7 +52,7 @@ const upload = multer({ storage: storage });
 
 
 
-// ✅ Registration Route
+//  Registration Route
 app.post('/registration', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -78,7 +78,7 @@ app.post('/registration', async (req, res) => {
   }
 });
 
-// ✅ Login Route
+//  Login Route
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -375,13 +375,13 @@ app.post("/leave", async (req, res) => {
   }
 });
 
-// ✅ READ all Leave
+// READ all Leave
 app.get("/leave", async (req, res) => {
   const leaves = await Leave.find();
   res.send(leaves);
 });
 
-// ✅ UPDATE Leave (Render-safe POST fallback)
+//  UPDATE Leave 
 app.post("/updateleave", async (req, res) => {
   try {
     const { id, studentname, departmentname, studentid } = req.body;
@@ -397,7 +397,7 @@ app.post("/updateleave", async (req, res) => {
   }
 });
 
-// ✅ DELETE Leave (Render-safe POST fallback)
+// ✅ DELETE Leave 
 app.post("/deleteleave", async (req, res) => {
   try {
     const { id } = req.body;
@@ -474,7 +474,7 @@ app.delete("/result/:id", async (req, res) => {
 });
 
 function gpaCalculation(resultArray){
-  // resultArray should be [{subject, result:number}, ...]
+
   if (!Array.isArray(resultArray) || resultArray.length === 0) return 0.00;
 
   const getGradePoint = (score) => {
@@ -504,7 +504,7 @@ function gpaCalculation(resultArray){
 
   if (subjectCount === 0) return 0.00;
   const cgpa = totalPoints / subjectCount;
-  // return numeric with 2
+ 
   return Number(cgpa.toFixed(2));
 }
 
